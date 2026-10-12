@@ -25,17 +25,30 @@ def main():
     parser.add_argument("--text", "-t", type=str, help="Text prompt to optimize using Context Aliasing (CADVS)")
     parser.add_argument("--image", "-i", type=str, help="Image path to optimize via Saliency Crop & Visual Cache")
     parser.add_argument("--status", "-s", action="store_true", help="Print TokenShield engine and cache status")
+    parser.add_argument("--create-key", "-k", type=str, help="Generate a new instant ts_live_... API key for an agent")
 
     args = parser.parse_args()
     gateway = TokenShieldGateway()
 
-    if not args.text and not args.image and not args.status:
+    if not args.text and not args.image and not args.status and not args.create_key:
         parser.print_help()
         sys.exit(0)
 
     print("="*65)
     print("🛡️  TOKENSHIELD OPTIMIZER")
     print("="*65)
+
+    if args.create_key:
+        import secrets
+        new_key = f"ts_live_{secrets.token_hex(16)}"
+        print("\n⚡ INSTANT AGENT API KEY GENERATED:")
+        print(f"Client Name : {args.create_key}")
+        print(f"API Key     : {new_key}")
+        print(f"Header      : Authorization: Bearer {new_key}")
+        print("\nPython Usage:")
+        print(f"  requests.post('http://127.0.0.1:8765/v1/agent/optimize', headers={{'Authorization': 'Bearer {new_key}'}}, json={{'prompt': '...'}})")
+        print("="*65)
+        sys.exit(0)
 
     if args.status:
         print(f"Status   : ONLINE")

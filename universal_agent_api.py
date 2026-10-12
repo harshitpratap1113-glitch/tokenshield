@@ -20,6 +20,7 @@ from typing import Optional, List, Dict, Any, Union
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, Header, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 
@@ -58,13 +59,9 @@ API_KEYS_DB = {
 # --- Request / Response Models ---
 
 class UniversalAgentRequest(BaseModel):
-    # Option 1: Simple prompt string
     prompt: Optional[str] = Field(None, description="Raw prompt text or system instructions")
-    # Option 2: Standard Agent Chat History Array
     messages: Optional[List[Dict[str, Any]]] = Field(None, description="OpenAI/Anthropic compatible messages array")
-    # Option 3: Image attachments (Base64 strings or local file paths)
     images: Optional[List[str]] = Field(None, description="List of image base64 strings or file paths")
-    # Options
     enable_aliasing: Optional[bool] = Field(True, description="Enable Lossless Context Aliasing for repetitive terms")
     enable_vision_crop: Optional[bool] = Field(True, description="Enable Saliency Bounding-Box Cropper for images")
     enable_visual_cache: Optional[bool] = Field(True, description="Check 64-bit dHash perceptual cache for 0-token hit")
@@ -86,6 +83,172 @@ def verify_agent_api_key(authorization: Optional[str] = Header(None)):
     return token
 
 # --- Endpoints ---
+
+@app.get("/", response_class=HTMLResponse, tags=["Dashboard"])
+@app.get("/dashboard", response_class=HTMLResponse, tags=["Dashboard"])
+def developer_dashboard():
+    """Serves the 1-Click Interactive TokenShield Developer Portal & Key Generator UI."""
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TokenShield Developer Portal & Key Manager</title>
+    <style>
+        :root {
+            --bg: #090d16;
+            --card: #111827;
+            --border: #1f2937;
+            --cyan: #06b6d4;
+            --emerald: #10b981;
+            --text: #f9fafb;
+            --muted: #9ca3af;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .container { max-width: 800px; width: 100%; }
+        .header { text-align: center; margin-bottom: 35px; }
+        .badge { display: inline-block; background: rgba(6, 182, 212, 0.15); color: var(--cyan); border: 1px solid rgba(6, 182, 212, 0.3); padding: 5px 16px; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+        h1 { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        p.subtitle { color: var(--muted); font-size: 1.05rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .card h2 { font-size: 1.3rem; margin-bottom: 8px; color: #f3f4f6; }
+        .card p { color: var(--muted); font-size: 0.95rem; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+        label { font-size: 0.85rem; font-weight: 600; color: #d1d5db; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select { background: #1f2937; border: 1px solid #374151; color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+        input:focus, select:focus { border-color: var(--cyan); }
+        button.btn { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: none; padding: 14px 24px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        button.btn:hover { background: linear-gradient(135deg, #0369a1, #1d4ed8); transform: translateY(-1px); }
+        .key-result-box { display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 20px; margin-top: 25px; }
+        .key-display { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        .key-text { flex: 1; background: #0b1329; border: 1px solid #1e293b; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 1.05rem; color: #34d399; overflow-x: auto; }
+        .copy-btn { background: #334155; color: #f1f5f9; border: none; padding: 12px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .copy-btn:hover { background: #475569; }
+        .code-box { background: #030712; border: 1px solid #1f2937; border-radius: 12px; padding: 20px; margin-top: 20px; font-family: monospace; font-size: 0.88rem; color: #93c5fd; overflow-x: auto; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="badge">Developer Console</span>
+            <h1>TokenShield API Key Manager</h1>
+            <p class="subtitle">Generate instant API keys to connect autonomous AI agents, LangChain, or CrewAI.</p>
+        </div>
+
+        <div class="card">
+            <h2>⚡ 1-Click Instant API Key Generator</h2>
+            <p>Enter your Agent or Application name to generate a verified <code>ts_live_...</code> API key.</p>
+
+            <div class="form-group">
+                <label>Agent / App Name</label>
+                <input type="text" id="appName" placeholder="e.g. MyTradingAgent, AutoResearcher, WhatsAppBot" value="MyCustomAgent-01">
+            </div>
+
+            <div class="form-group">
+                <label>Tier Quota</label>
+                <select id="tierSelect">
+                    <option value="standard">Standard (100k Tokens / Day)</option>
+                    <option value="unlimited" selected>Unlimited (Godmode Developer Access)</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="generateKey()">⚡ Generate API Key Now</button>
+
+            <div id="resultBox" class="key-result-box">
+                <h3 style="color:#10b981; font-size:1.1rem;">✅ API Key Successfully Created!</h3>
+                <p style="margin-bottom:5px;">Keep this key safe. Use it in the <code>Authorization: Bearer</code> header:</p>
+                <div class="key-display">
+                    <div class="key-text" id="keyOutput">ts_live_...</div>
+                    <button class="copy-btn" onclick="copyKey()">📋 Copy</button>
+                </div>
+
+                <div class="code-box" id="codeSnippet">
+# Python Integration Example:
+import requests
+resp = requests.post(
+    "http://127.0.0.1:8765/v1/agent/optimize",
+    headers={"Authorization": "Bearer YOUR_KEY"},
+    json={"prompt": "Your long prompt here"}
+)
+print(resp.json())
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="border-color:#374151;">
+            <h2>📖 Direct Swagger UI & API Endpoints</h2>
+            <p style="margin-bottom:12px;">Test individual endpoints live in your browser using Swagger Docs:</p>
+            <a href="/docs" target="_blank" style="color:#38bdf8; text-decoration:none; font-weight:600;">👉 Open Interactive Swagger UI (/docs)</a>
+        </div>
+    </div>
+
+    <script>
+        async function generateKey() {
+            const name = document.getElementById('appName').value.trim() || 'CustomAgent';
+            const tier = document.getElementById('tierSelect').value;
+
+            try {
+                const res = await fetch('/v1/keys/public-generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_name: name, tier: tier })
+                });
+                const data = await res.json();
+                if (data.api_key) {
+                    document.getElementById('keyOutput').innerText = data.api_key;
+                    document.getElementById('resultBox').style.display = 'block';
+
+                    const code = `# Python AI Agent Integration:
+import requests
+
+resp = requests.post(
+    "http://127.0.0.1:8765/v1/agent/optimize",
+    headers={"Authorization": "Bearer ${data.api_key}"},
+    json={
+        "messages": [
+            {"role": "user", "content": "Your long repetitive database prompt here..."}
+        ],
+        "enable_aliasing": True
+    }
+)
+print("Tokens Saved:", resp.json()["telemetry"]["net_tokens_saved"])`;
+                    document.getElementById('codeSnippet').innerText = code;
+                }
+            } catch (err) {
+                alert("Error generating key: " + err);
+            }
+        }
+
+        function copyKey() {
+            const key = document.getElementById('keyOutput').innerText;
+            navigator.clipboard.writeText(key);
+            alert("API Key copied to clipboard: " + key);
+        }
+    </script>
+</body>
+</html>
+"""
+
+@app.post("/v1/keys/public-generate", tags=["Authentication & Keys"])
+def public_generate_key(req: KeyGenerateRequest):
+    """Public 1-click endpoint for users to generate an API key from the Developer Dashboard."""
+    new_key = f"ts_live_{secrets.token_hex(16)}"
+    API_KEYS_DB[new_key] = {
+        "client": req.client_name,
+        "tier": req.tier,
+        "requests": 0,
+        "tokens_saved": 0,
+        "created_at": time.time()
+    }
+    return {
+        "success": True,
+        "api_key": new_key,
+        "client": req.client_name,
+        "tier": req.tier,
+        "usage": "Include in header: Authorization: Bearer " + new_key
+    }
+
 
 @app.get("/v1/health", tags=["System"])
 def health():
