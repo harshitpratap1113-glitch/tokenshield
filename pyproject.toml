@@ -24,6 +24,7 @@ tokenshield = "mcp_server:main"
 tokenshield-mcp = "mcp_server:main"
 tokenshield-sse = "mcp_server:run_sse"
 tokenshield-cli = "cli:main"
+tokenshield-api = "api_server:start_api"
 tokenshield-proxy = "proxy_server:start_server"
 
 [project.urls]

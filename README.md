@@ -168,6 +168,38 @@ response = client.chat.completions.create(
 
 ---
 
+## 🚀 Standalone REST API & Interactive Swagger UI (`api_server.py`)
+
+TokenShield provides a dedicated, high-performance REST API with live Swagger documentation for web apps, frontends, and backend services!
+
+### Launch REST API:
+```bash
+python api_server.py
+# Server running at http://127.0.0.1:8765
+# Interactive Swagger UI: http://127.0.0.1:8765/docs
+```
+
+### 1. Optimize Text Prompt via cURL:
+```bash
+curl -X POST "http://127.0.0.1:8765/api/v1/optimize/text" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Query CustomerOrderDatabaseSchema and update CustomerOrderDatabaseSchema"}'
+```
+
+### 2. Optimize Image / Screenshot via cURL:
+```bash
+curl -X POST "http://127.0.0.1:8765/api/v1/optimize/vision" \
+  -F "file=@screenshot_1080p.png"
+```
+
+### 3. Check System Health & Visual Cache Count:
+```bash
+curl "http://127.0.0.1:8765/api/v1/status"
+```
+
+
+---
+
 ## 🎮 Universal Client Connection Directory (All AI Clients)
 
 TokenShield is 100% platform-agnostic. Use the exact 1-liner or configuration for your preferred AI client below:
