@@ -197,6 +197,49 @@ curl -X POST "http://127.0.0.1:8765/api/v1/optimize/vision" \
 curl "http://127.0.0.1:8765/api/v1/status"
 ```
 
+---
+
+## 🤖 Universal AI Agent API (`universal_agent_api.py`)
+
+Designed specifically for autonomous AI agents (**LangChain, CrewAI, AutoGen, LlamaIndex, Custom Bots**).  
+Secured with **Bearer API Keys** (`ts_live_...`), featuring single mega-endpoint `/v1/agent/optimize` and live telemetry!
+
+### Launch Universal Agent API:
+```bash
+python universal_agent_api.py
+# Master API Key: ts_live_master_2026_godmode
+```
+
+### Python Agent Integration (3 Lines of Code):
+```python
+import requests
+
+# Send prompts, chat history array, and images in 1 call!
+resp = requests.post(
+    "http://127.0.0.1:8765/v1/agent/optimize",
+    headers={"Authorization": "Bearer ts_live_master_2026_godmode"},
+    json={
+        "messages": [
+            {"role": "user", "content": "Query CustomerOrderDatabaseSchema and update CustomerOrderDatabaseSchema"}
+        ],
+        "enable_aliasing": True
+    }
+)
+
+optimized_data = resp.json()
+print("Tokens Saved:", optimized_data["telemetry"]["net_tokens_saved"])
+print("Clean Messages for LLM:", optimized_data["optimized_messages"])
+```
+
+### cURL Agent Call:
+```bash
+curl -X POST "http://127.0.0.1:8765/v1/agent/optimize" \
+  -H "Authorization: Bearer ts_live_master_2026_godmode" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Analyze CustomerOrderDatabaseSchema and CustomerOrderDatabaseSchema"}'
+```
+
+
 
 ---
 
