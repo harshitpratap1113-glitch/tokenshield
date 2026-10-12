@@ -1,13 +1,11 @@
 """
 TokenShield Official MCP (Model Context Protocol) Server
-Exposes TokenShield optimization tools directly to Claude Desktop, Cursor, Antigravity,
-and all MCP-compatible AI clients.
+Supports both STDIO (Desktop AI apps) and SSE (Server-Sent Events HTTP on any web AI platform).
 """
 from typing import Optional
 import os
 import sys
 
-# Ensure TokenShield root is in sys.path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
@@ -16,7 +14,7 @@ from mcp.server.fastmcp import FastMCP
 from gateway import TokenShieldGateway
 
 # Initialize FastMCP Server
-mcp = FastMCP("TokenShield")
+mcp = FastMCP("TokenShield", host="0.0.0.0", port=8000)
 gateway = TokenShieldGateway(db_path=os.path.join(BASE_DIR, "visual_cache.db"))
 
 @mcp.tool()
@@ -112,5 +110,21 @@ def get_tokenshield_status() -> dict:
         "registered_visual_cache_entries": cached_count
     }
 
+def run_sse():
+    """Runs MCP in SSE mode on http://0.0.0.0:8000/sse for web AI clients & 1-click URL connections."""
+    print("="*65)
+    print("⚡ TOKENSHIELD MCP SSE SERVER RUNNING")
+    print("="*65)
+    print("URL Connection Endpoint: http://localhost:8000/sse")
+    print("In Cursor / Windsurf / LibreChat: Choose Type 'SSE' and paste above URL!")
+    print("="*65)
+    mcp.run(transport="sse")
+
+def main():
+    if "--sse" in sys.argv or "--http" in sys.argv:
+        run_sse()
+    else:
+        mcp.run(transport="stdio")
+
 if __name__ == "__main__":
-    mcp.run()
+    main()

@@ -1,0 +1,7 @@
+# Smithery 1-Click Registry Configuration for TokenShield
+startCommand:
+  type: stdio
+  config:
+    command: python
+    args:
+      - "mcp_server.py"

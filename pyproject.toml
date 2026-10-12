@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tokenshield"
+version = "1.0.0"
+description = "Multi-Modal Pre-Inference Optimization Gateway for LLMs & Vision APIs"
+readme = "README.md"
+authors = [
+  { name = "Harshit Pratap", email = "harshitpratap1113@gmail.com" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "Pillow>=10.0.0",
+    "mcp>=1.0.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0"
+]
+
+[project.scripts]
+tokenshield = "mcp_server:main"
+tokenshield-mcp = "mcp_server:main"
+tokenshield-sse = "mcp_server:run_sse"
+tokenshield-cli = "cli:main"
+tokenshield-proxy = "proxy_server:start_server"
+
+[project.urls]
+Homepage = "https://github.com/harshitpratap1113-glitch/tokenshield"
+Repository = "https://github.com/harshitpratap1113-glitch/tokenshield.git"

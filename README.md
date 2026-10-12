@@ -168,35 +168,45 @@ response = client.chat.completions.create(
 
 ---
 
-## 🔌 Model Context Protocol (MCP) Integration
+## 🔌 Universal 1-Click MCP Integration (Any Platform / Any AI)
 
+Modern MCP clients (Cursor, Windsurf, Claude Desktop, LibreChat) connect in **3 zero-friction ways**:
 
-TokenShield includes a native **FastMCP Server** (`mcp_server.py`) ready for 1-click integration with **Claude Desktop**, **Cursor**, **Antigravity**, and any MCP client!
-
-### Claude Desktop Configuration (`claude_desktop_config.json`):
+### ⚡ 1. The Global 1-Liner (`uvx` - Zero Download Needed!)
+Anyone in the world can add this to their `claude_desktop_config.json` without downloading or cloning any files. It automatically pulls and runs from GitHub:
 ```json
 {
   "mcpServers": {
     "tokenshield": {
-      "command": "python",
-      "args": ["D:\\TokenShield\\mcp_server.py"]
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/harshitpratap1113-glitch/tokenshield", "tokenshield"]
     }
   }
 }
 ```
 
-### Exposed MCP Tools:
-1. `optimize_prompt_tokens`: Compresses text prompts using Lossless Context Aliasing (CADVS).
-2. `optimize_vision_image`: Scans images for 0-token cache hit or extracts tight ROI bounding box.
-3. `store_visual_cache`: Saves verified image answers for future instant 0-token matching.
-4. `get_tokenshield_status`: Checks engine health and lifetime cache entries.
+### 🌐 2. 1-Click URL Connection (SSE Transport - Cursor, Windsurf, Web Clients)
+TokenShield supports native **Server-Sent Events (SSE)** HTTP transport!
+1. Start the SSE server:
+   ```bash
+   python mcp_server.py --sse
+   ```
+2. In Cursor, Windsurf, or any web AI client:
+   * **Transport Type:** `SSE`
+   * **URL:** `http://localhost:8000/sse`
+   * Click **Connect** $\rightarrow$ Instant 1-Click Link!
+
+### 🛠️ 3. Smithery.ai 1-Click CLI
+```bash
+npx -y @smithery/cli install tokenshield --client claude
+```
 
 ---
 
 ## 🗺️ Roadmap
 - [x] **Phase 1:** Core Optimization Engines (CADVS, ASVPP, PV-Cache) & Real Benchmark Verification.
 - [x] **Phase 2:** Model Context Protocol (MCP) Server Wrapper (`mcp_server.py`) for Claude Desktop & Cursor.
-- [ ] **Phase 3:** FastAPI Drop-in Reverse Proxy (`http://localhost:8765/v1/chat/completions`) for OpenAI SDK compatibility.
+- [x] **Phase 3:** Drop-in OpenAI Reverse Proxy (`proxy_server.py`) & Universal SSE Transport.
 - [ ] **Phase 4:** Indic Byte Tokenizer (Devanagari byte compression saving 60% on Hindi prompts).
 
 
