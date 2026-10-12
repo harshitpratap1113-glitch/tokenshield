@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+venv/
+.venv/
+
+# Local database & transient test outputs
+*.db
+*.sqlite3
+test_*.png
+test_*.jpg
+real_*.png
+real_*.jpg
+
+# OS
+.DS_Store
+Thumbs.db
