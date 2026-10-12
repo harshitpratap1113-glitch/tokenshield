@@ -168,12 +168,16 @@ response = client.chat.completions.create(
 
 ---
 
-## 🔌 Universal 1-Click MCP Integration (Any Platform / Any AI)
+## 🎮 Universal Client Connection Directory (All AI Clients)
 
-Modern MCP clients (Cursor, Windsurf, Claude Desktop, LibreChat) connect in **3 zero-friction ways**:
+TokenShield is 100% platform-agnostic. Use the exact 1-liner or configuration for your preferred AI client below:
 
-### ⚡ 1. The Global 1-Liner (`uvx` - Zero Download Needed!)
-Anyone in the world can add this to their `claude_desktop_config.json` without downloading or cloning any files. It automatically pulls and runs from GitHub:
+### 1. Claude Desktop
+**Option A: 1-Click Smithery CLI**
+```bash
+npx -y @smithery/cli install harshitpratap1113-glitch/tokenshield --client claude
+```
+**Option B: Global `uvx` (In `claude_desktop_config.json`)**
 ```json
 {
   "mcpServers": {
@@ -185,21 +189,79 @@ Anyone in the world can add this to their `claude_desktop_config.json` without d
 }
 ```
 
-### 🌐 2. 1-Click URL Connection (SSE Transport - Cursor, Windsurf, Web Clients)
-TokenShield supports native **Server-Sent Events (SSE)** HTTP transport!
-1. Start the SSE server:
-   ```bash
-   python mcp_server.py --sse
-   ```
-2. In Cursor, Windsurf, or any web AI client:
-   * **Transport Type:** `SSE`
-   * **URL:** `http://localhost:8000/sse`
-   * Click **Connect** $\rightarrow$ Instant 1-Click Link!
+---
 
-### 🛠️ 3. Smithery.ai 1-Click CLI
+### 2. Cursor IDE
+**Option A: 1-Click Smithery CLI**
 ```bash
-npx -y @smithery/cli install tokenshield --client claude
+npx -y @smithery/cli install harshitpratap1113-glitch/tokenshield --client cursor
 ```
+**Option B: 1-Click SSE URL**
+1. Start SSE: `python mcp_server.py --sse`
+2. In Cursor (`Settings -> Features -> MCP`):
+   * **Name:** `TokenShield`
+   * **Type:** `SSE`
+   * **URL:** `http://localhost:8000/sse`
+
+---
+
+### 3. Windsurf IDE (Codeium)
+```bash
+npx -y @smithery/cli install harshitpratap1113-glitch/tokenshield --client windsurf
+```
+
+---
+
+### 4. Cline / Roo-Code (VS Code Extension)
+```bash
+npx -y @smithery/cli install harshitpratap1113-glitch/tokenshield --client cline
+```
+
+---
+
+### 5. Zed Editor
+```bash
+npx -y @smithery/cli install harshitpratap1113-glitch/tokenshield --client zed
+```
+
+---
+
+### 6. Continue.dev (VS Code & JetBrains)
+In your `~/.continue/config.json`:
+```json
+{
+  "experimental": {
+    "modelContextProtocolServers": [
+      {
+        "transport": {
+          "type": "sse",
+          "url": "http://localhost:8000/sse"
+        }
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 7. Web & Desktop Chat UIs (LibreChat, Chatbox, Cherry Studio)
+1. Run local SSE: `python mcp_server.py --sse`
+2. Add MCP Server in the GUI:
+   * **Type:** `SSE`
+   * **Endpoint:** `http://localhost:8000/sse`
+
+---
+
+### 8. Any Codebase or Custom Bot (OpenAI SDK, LangChain, LlamaIndex, CrewAI)
+Launch proxy: `python proxy_server.py` (Runs on `http://127.0.0.1:8765/v1`)
+```python
+from openai import OpenAI
+
+# Just point base_url - works with ANY Python, JS, or cURL request!
+client = OpenAI(base_url="http://127.0.0.1:8765/v1", api_key="sk-...")
+```
+
 
 ---
 
