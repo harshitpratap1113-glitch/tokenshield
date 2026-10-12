@@ -337,6 +337,51 @@ from openai import OpenAI
 client = OpenAI(base_url="http://127.0.0.1:8765/v1", api_key="sk-...")
 ```
 
+---
+
+### 9. 🌐 Universal Agent API & Key Generation (Autonomous Agents & REST)
+Launch server: `python universal_agent_api.py` (Runs on `http://127.0.0.1:8765`)
+
+#### 🔑 Where & How Does a User Generate an API Key?
+TokenShield provides **3 instant ways** to generate persistent `ts_live_...` API keys:
+
+1. **🌐 1-Click Web Developer Dashboard:**
+   * Open `http://127.0.0.1:8765/dashboard` (or root `http://127.0.0.1:8765/`) in any browser.
+   * Type your Agent/App name (e.g. `TradingBot-v1`).
+   * Click **"⚡ Generate API Key Now"** — copies key immediately with ready-to-run Python code!
+
+2. **💻 1-Command Terminal CLI:**
+   ```bash
+   python cli.py --create-key "MyCustomAgent"
+   ```
+   * Instantly prints the `ts_live_...` key and permanently saves it to the SQLite database.
+
+3. **📡 Public REST Endpoint (Programmatic Key Generation):**
+   ```bash
+   curl -X POST http://127.0.0.1:8765/v1/keys/public-generate \
+     -H "Content-Type: application/json" \
+     -d '{"client_name": "AutonomousAgent", "tier": "standard"}'
+   ```
+
+> **⚡ Zero-Friction Master Key:** For immediate local testing without generating a key, the pre-configured Godmode key `ts_live_master_2026_godmode` works out-of-the-box on all endpoints.
+
+#### Example Agent Request:
+```python
+import requests
+
+resp = requests.post(
+    "http://127.0.0.1:8765/v1/agent/optimize",
+    headers={"Authorization": "Bearer ts_live_your_key_here"},
+    json={
+        "messages": [
+            {"role": "system", "content": "You are a financial analyst."},
+            {"role": "user", "content": "Analyze PostgreSQL migration logs for GlobalFinancialLiquidityLedger..."}
+        ],
+        "enable_aliasing": True
+    }
+)
+print("Tokens Saved:", resp.json()["telemetry"]["net_tokens_saved"])
+```
 
 ---
 

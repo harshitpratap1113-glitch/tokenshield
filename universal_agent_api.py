@@ -47,14 +47,71 @@ app.add_middleware(
 )
 
 gateway = TokenShieldGateway(db_path=os.path.join(BASE_DIR, "visual_cache.db"))
+DB_PATH = os.path.join(BASE_DIR, "visual_cache.db")
 
 # Default Master Key for instant zero-friction developer access
 MASTER_API_KEY = "ts_live_master_2026_godmode"
 
-# In-Memory / SQLite API Key Registry
+def init_keys_db():
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS api_keys (
+                    key TEXT PRIMARY KEY,
+                    client TEXT,
+                    tier TEXT,
+                    created_at REAL,
+                    requests INTEGER DEFAULT 0,
+                    tokens_saved INTEGER DEFAULT 0
+                )
+            """)
+            conn.execute("""
+                INSERT OR IGNORE INTO api_keys (key, client, tier, created_at, requests, tokens_saved)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (MASTER_API_KEY, "SuperAdmin-Master", "unlimited", time.time(), 0, 0))
+            conn.commit()
+    except Exception as e:
+        print(f"Warning: Failed to initialize SQLite keys table: {e}")
+
+init_keys_db()
+
+# In-Memory / Fast Cache Registry
 API_KEYS_DB = {
     MASTER_API_KEY: {"client": "SuperAdmin-Master", "tier": "unlimited", "requests": 0, "tokens_saved": 0}
 }
+
+def save_key_to_db(key: str, client: str, tier: str):
+    API_KEYS_DB[key] = {
+        "client": client,
+        "tier": tier,
+        "requests": 0,
+        "tokens_saved": 0,
+        "created_at": time.time()
+    }
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute("""
+                INSERT OR REPLACE INTO api_keys (key, client, tier, created_at, requests, tokens_saved)
+                VALUES (?, ?, ?, ?, 0, 0)
+            """, (key, client, tier, time.time()))
+            conn.commit()
+    except Exception as e:
+        print(f"Warning: Failed to save key to DB: {e}")
+
+def is_valid_key(token: str) -> bool:
+    if token == MASTER_API_KEY or token in API_KEYS_DB:
+        return True
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT client, tier FROM api_keys WHERE key = ?", (token,))
+            row = cursor.fetchone()
+            if row:
+                API_KEYS_DB[token] = {"client": row[0], "tier": row[1], "requests": 0, "tokens_saved": 0}
+                return True
+    except Exception:
+        pass
+    return False
 
 # --- Request / Response Models ---
 
@@ -77,7 +134,7 @@ def verify_agent_api_key(authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=401, detail="Missing Authorization header. Use 'Bearer ts_live_...'")
     
     token = authorization.replace("Bearer ", "").strip()
-    if token not in API_KEYS_DB and token != MASTER_API_KEY:
+    if not is_valid_key(token):
         raise HTTPException(status_code=403, detail="Invalid TokenShield API Key.")
     
     return token
@@ -234,13 +291,7 @@ print("Tokens Saved:", resp.json()["telemetry"]["net_tokens_saved"])`;
 def public_generate_key(req: KeyGenerateRequest):
     """Public 1-click endpoint for users to generate an API key from the Developer Dashboard."""
     new_key = f"ts_live_{secrets.token_hex(16)}"
-    API_KEYS_DB[new_key] = {
-        "client": req.client_name,
-        "tier": req.tier,
-        "requests": 0,
-        "tokens_saved": 0,
-        "created_at": time.time()
-    }
+    save_key_to_db(new_key, req.client_name, req.tier)
     return {
         "success": True,
         "api_key": new_key,
@@ -258,13 +309,7 @@ def health():
 def generate_key(req: KeyGenerateRequest, token: str = Depends(verify_agent_api_key)):
     """Generates a new secure client API key with live usage quotas."""
     new_key = f"ts_live_{secrets.token_hex(16)}"
-    API_KEYS_DB[new_key] = {
-        "client": req.client_name,
-        "tier": req.tier,
-        "requests": 0,
-        "tokens_saved": 0,
-        "created_at": time.time()
-    }
+    save_key_to_db(new_key, req.client_name, req.tier)
     return {
         "success": True,
         "api_key": new_key,

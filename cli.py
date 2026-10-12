@@ -40,8 +40,31 @@ def main():
 
     if args.create_key:
         import secrets
+        import sqlite3
+        import time
         new_key = f"ts_live_{secrets.token_hex(16)}"
-        print("\n⚡ INSTANT AGENT API KEY GENERATED:")
+        db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "visual_cache.db")
+        try:
+            with sqlite3.connect(db_path) as conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS api_keys (
+                        key TEXT PRIMARY KEY,
+                        client TEXT,
+                        tier TEXT,
+                        created_at REAL,
+                        requests INTEGER DEFAULT 0,
+                        tokens_saved INTEGER DEFAULT 0
+                    )
+                """)
+                conn.execute("""
+                    INSERT OR REPLACE INTO api_keys (key, client, tier, created_at, requests, tokens_saved)
+                    VALUES (?, ?, 'standard', ?, 0, 0)
+                """, (new_key, args.create_key, time.time()))
+                conn.commit()
+        except Exception as e:
+            print(f"Warning: Could not save key to SQLite: {e}")
+
+        print("\n⚡ INSTANT AGENT API KEY GENERATED & SAVED TO DB:")
         print(f"Client Name : {args.create_key}")
         print(f"API Key     : {new_key}")
         print(f"Header      : Authorization: Bearer {new_key}")
