@@ -121,9 +121,55 @@ else:
     print(f"Cropped to ROI! Saved: {optimized_vision['savings_pct']}% vision tokens")
 ```
 
+## ⚡ 1-Click Automatic Installation (Zero-Configuration!)
+
+Nobody wants to manually edit JSON files. TokenShield includes an intelligent cross-platform auto-installer:
+
+### Option A: Windows (1-Click Batch File)
+Simply double-click **`1_CLICK_INSTALL_WINDOWS.bat`**. It automatically:
+1. Installs all required dependencies.
+2. Detects Claude Desktop / Cursor and registers TokenShield MCP automatically.
+3. Runs the verification benchmark.
+
+### Option B: Universal Python (Windows, macOS, Linux)
+```bash
+python auto_setup.py
+```
+> **Output:** Automatically detects your OS, finds your `claude_desktop_config.json`, injects the configuration, and confirms setup!
+
+---
+
+## 🌐 Drop-in OpenAI Reverse Proxy Server (`proxy_server.py`)
+
+Want to optimize **any existing Python/Node.js AI app** with zero code changes?
+
+Launch the local reverse proxy:
+```bash
+python proxy_server.py
+# Running on http://127.0.0.1:8765/v1
+```
+
+In your application code (OpenAI SDK, LangChain, Cursor, LlamaIndex), just point `base_url`:
+```python
+from openai import OpenAI
+
+# Simply change base_url to TokenShield Proxy!
+client = OpenAI(
+    base_url="http://127.0.0.1:8765/v1",
+    api_key="your-api-key"
+)
+
+# TokenShield intercepts prompts and images, optimizes them, and logs savings!
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Your long repetitive prompt or image..."}]
+)
+```
+
 ---
 
 ## 🔌 Model Context Protocol (MCP) Integration
+
 
 TokenShield includes a native **FastMCP Server** (`mcp_server.py`) ready for 1-click integration with **Claude Desktop**, **Cursor**, **Antigravity**, and any MCP client!
 
