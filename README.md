@@ -86,14 +86,46 @@ Tested against real PostgreSQL enterprise migration scripts and live 1080p Full 
 
 ## 📦 Quickstart & Installation
 
-### Requirements
-* Python 3.10+
-* Pillow (`pip install Pillow`)
-
+### Step 1: Clone Repository & Enter Directory
 ```bash
 git clone https://github.com/harshitpratap1113-glitch/tokenshield.git
 cd tokenshield
 ```
+> ⚠️ **Important:** Always make sure you run `cd tokenshield` before running any scripts! If you try to run `python cli.py` outside this directory, Python will report `No such file or directory`.
+
+### Step 2: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+*(Optional: Run `pip install -e .` if you want to use the global `tokenshield-cli` command from any folder on your machine!)*
+
+---
+
+## 💻 Terminal CLI & Instant API Key Generation
+
+You can optimize prompts or generate agent API keys directly from your terminal:
+
+```bash
+# 1. Generate an Instant API Key for an Agent / App:
+python cli.py --create-key "MyCustomAgent"
+
+# 2. Optimize a long repetitive text prompt:
+python cli.py --text "SELECT * FROM UserProfileService JOIN UserProfileService..."
+
+# 3. Optimize an image or screenshot (Saliency ROI Crop + Visual Cache):
+python cli.py --image "path/to/screenshot.png"
+
+# 4. Check TokenShield engine status:
+python cli.py --status
+```
+
+> **💡 Global Shortcut (Run from ANY folder without typing python or cd):**
+> If you installed with `pip install -e .`, you can run anywhere:
+> ```bash
+> tokenshield-cli --create-key "cloud"
+> ```
+
+---
 
 ### Run Live Benchmarks
 ```bash
