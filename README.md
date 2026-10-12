@@ -123,11 +123,36 @@ else:
 
 ---
 
+## 🔌 Model Context Protocol (MCP) Integration
+
+TokenShield includes a native **FastMCP Server** (`mcp_server.py`) ready for 1-click integration with **Claude Desktop**, **Cursor**, **Antigravity**, and any MCP client!
+
+### Claude Desktop Configuration (`claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "tokenshield": {
+      "command": "python",
+      "args": ["D:\\TokenShield\\mcp_server.py"]
+    }
+  }
+}
+```
+
+### Exposed MCP Tools:
+1. `optimize_prompt_tokens`: Compresses text prompts using Lossless Context Aliasing (CADVS).
+2. `optimize_vision_image`: Scans images for 0-token cache hit or extracts tight ROI bounding box.
+3. `store_visual_cache`: Saves verified image answers for future instant 0-token matching.
+4. `get_tokenshield_status`: Checks engine health and lifetime cache entries.
+
+---
+
 ## 🗺️ Roadmap
 - [x] **Phase 1:** Core Optimization Engines (CADVS, ASVPP, PV-Cache) & Real Benchmark Verification.
-- [ ] **Phase 2:** FastAPI Drop-in Reverse Proxy (`http://localhost:8765/v1/chat/completions`) for seamless OpenAI/Claude drop-in compatibility.
-- [ ] **Phase 3:** Model Context Protocol (MCP) Server Wrapper for Claude Desktop and Cursor.
+- [x] **Phase 2:** Model Context Protocol (MCP) Server Wrapper (`mcp_server.py`) for Claude Desktop & Cursor.
+- [ ] **Phase 3:** FastAPI Drop-in Reverse Proxy (`http://localhost:8765/v1/chat/completions`) for OpenAI SDK compatibility.
 - [ ] **Phase 4:** Indic Byte Tokenizer (Devanagari byte compression saving 60% on Hindi prompts).
+
 
 ---
 
